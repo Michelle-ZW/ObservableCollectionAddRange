@@ -17,7 +17,7 @@ variables:
   
 
 steps:
-- task: NuGetToolInstaller@1
+- task: NuGetToolInstaller@0
   inputs:
     versionSpec: 6.0.0
 
@@ -26,6 +26,7 @@ steps:
     restoreSolution: '$(Parameters.solution)'
 
 - task: VSBuild@1
+  displayName: 'Build solution **\*.sln'
   inputs:
     solution: '$(Parameters.solution)'
     platform: '$(BuildPlatform)'
@@ -39,6 +40,4 @@ steps:
 - task: NuGetCommand@2
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: 'internal'
     publishVstsFeed: '283186fe-ce11-47ed-961d-7787d71eb92a'
