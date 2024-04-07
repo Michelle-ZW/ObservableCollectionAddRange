@@ -7,37 +7,40 @@ trigger:
 - master
 
 pool:
-  name: selfHostedAGP
-  demands:
-  - msbuild
-  - visualstudio
+  vmImage: 'windows-latest'
 
 variables:
   solution: '**/*.sln'
-  
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@0
+- task: NuGetToolInstaller@1
   inputs:
-    versionSpec: 6.0.0
+    versionSpec: '6.0.0'
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '$(Parameters.solution)'
+    restoreSolution: '$(solution)'
 
 - task: VSBuild@1
-  displayName: 'Build solution **\*.sln'
   inputs:
-    solution: '$(Parameters.solution)'
-    platform: '$(BuildPlatform)'
-    configuration: '$(BuildConfiguration)'
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
 
 - task: NuGetCommand@2
   inputs:
     command: 'pack'
+    packagesToPack: '**/*.csproj'
     versioningScheme: 'byPrereleaseNumber'
-    
+    majorVersion: '1'
+    minorVersion: '0'
+    patchVersion: '0'
+
 - task: NuGetCommand@2
   inputs:
     command: 'push'
-    publishVstsFeed: '283186fe-ce11-47ed-961d-7787d71eb92a'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: 'a84d623c-1e1f-4c24-a221-1171b6c74482'
